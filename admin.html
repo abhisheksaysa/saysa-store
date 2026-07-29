@@ -134,6 +134,53 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const storage = getStorage(app);
+ document.getElementById("addProduct").addEventListener("click", async () => {
+
+const name = document.getElementById("name").value.trim();
+const price = document.getElementById("price").value.trim();
+const category = document.getElementById("category").value.trim();
+const desc = document.getElementById("desc").value.trim();
+const imageFile = document.getElementById("image").files[0];
+
+if (!name || !price || !category || !desc || !imageFile) {
+    alert("Please fill all fields.");
+    return;
+}
+
+try {
+
+    document.getElementById("msg").innerHTML = "Uploading...";
+
+    const imageRef = ref(storage, "products/" + Date.now() + "_" + imageFile.name);
+
+    await uploadBytes(imageRef, imageFile);
+
+    const imageUrl = await getDownloadURL(imageRef);
+
+    await addDoc(collection(db, "products"), {
+        name: name,
+        price: price,
+        category: category,
+        description: desc,
+        image: imageUrl,
+        createdAt: new Date()
+    });
+
+    document.getElementById("msg").innerHTML = "✅ Product Added Successfully";
+
+    document.getElementById("name").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("desc").value = "";
+    document.getElementById("image").value = "";
+
+}
+catch(error){
+    alert(error.message);
+    console.log(error);
+}
+
+});
 
 </script>
 
